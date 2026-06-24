@@ -1,7 +1,6 @@
 # 上手指南（5 分钟）
 
-> 不需要 Obsidian，不需要 MCP，不需要任何 API key。
-> 只要 Python 3.10+ 和 Node 18+。
+> 环境要求：Python 3.10+、Node 18+。「LLM 读 JD」用你当前会话的模型完成，无需 API key。
 
 ## 它是什么（一句话）
 
@@ -78,10 +77,6 @@ CHROME_BIN="/上面打印的chrome路径" bash browser/launch_chrome.sh
 你正在用的那个 LLM（比如 Claude Code / ChatGPT）。把 `discover` 产出的 `data/_batch_packet.json`
 丢给它，让它对照你的画像逐条判断，按 `agent/llm_eval.py` 顶部的格式写成 `data/llm_evals.json`，
 再 `./jobagent eval` 写回台账。**代码本身不调任何 LLM API**，所以没有 key、没有费用。
-
-**用了 MCP 吗？**
-没有。所有和 BOSS 的交互都走 `browser/` 里的 Node CDP 脚本（驱动那个隔离浏览器），不依赖任何
-MCP 服务。
 
 **所有命令都不记得怎么办？**
 `./jobagent` 不带参数会列出全部命令；每个命令 `-h` 看自己的参数。
