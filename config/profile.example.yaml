@@ -1,0 +1,174 @@
+# =============================================================================
+# boss-job-agent — Candidate Profile (the ONE config that personalizes the agent)
+# =============================================================================
+# Copy this file to config/profile.yaml and edit it. profile.yaml is gitignored,
+# so your real preferences never get committed. Everything the engine does —
+# what it searches, how it scores, what it auto-rejects, how it greets — is
+# driven from here. Scripts read this file; they never hardcode your preferences.
+#
+# Philosophy (see ARCHITECTURE.md):
+#   1. Keyword rules are a SAFETY NET, not the brain. The real judgment is the
+#      LLM-as-judge layer reading each JD against this profile.
+#   2. Classify the role into an ARCHETYPE -> TIER first, then score within a
+#      band. Never sum keywords into a score.
+#   3. Discovery / scoring / drafting are automated. Sending is ALWAYS manual.
+#
+# The values below describe a sample persona: a junior, AI-native
+# product / product-ops / user-growth candidate. Replace with your own.
+# =============================================================================
+
+identity:
+  # One-line positioning the agent uses in greetings and reasoning.
+  positioning: "AI 原生产品 / 产品运营 / 用户增长候选人（junior，作品集驱动）"
+  # Text that appears on the page only when you are logged in to BOSS.
+  # Used by the browser layer to verify the session is live. Usually your name
+  # as shown in the top-right of zhipin.com. Leave "" to skip the check.
+  login_name: ""
+
+# -----------------------------------------------------------------------------
+# Search: what to look for and where.
+# -----------------------------------------------------------------------------
+search:
+  cities: [上海, 杭州]            # priority order: first = primary
+  city_codes:                    # BOSS internal city codes (geek/jobs?city=)
+    上海: "101020100"
+    杭州: "101210100"
+    北京: "101010100"
+    深圳: "101280600"
+    广州: "101280100"
+    南京: "101190100"
+    成都: "101270100"
+  keywords:                      # 3-5 per batch; widen the funnel deliberately
+    - 用户增长
+    - 增长产品经理
+    - AI 产品运营
+    - AI 产品助理
+    - AI 产品经理
+    - AI Agent 产品
+    - 教育产品 AI
+  # Titles that usually mean "too senior" for a junior candidate; pre-filtered out.
+  seniority_excludes: [高级, 资深, 专家, 总监, 负责人, 主管, 总裁, VP, 操盘手, 总经理]
+  # On-strategy hints used to keep "unknown" archetype cards when the title is on-track.
+  on_strategy_hints: [用户增长, 增长, 产品运营, AI产品, 产品经理, agent, 大模型, 教育, 语言, 出海]
+
+# -----------------------------------------------------------------------------
+# Scoring: archetype-gated band model. See agent/rules.py.
+# -----------------------------------------------------------------------------
+scoring:
+  # Base score per tier. A = core targets, D = hard reject.
+  tier_base: {A: 4.0, B: 3.5, C: 2.9, D: 2.0, unknown: 3.2}
+  # Bounded evidence modifiers can nudge within a tier but never cross tiers.
+  modifier_bounds: [-0.8, 0.8]
+  modifiers:
+    junior_friendly: 0.3        # 应届/管培/产品助理/经验不限
+    visible_work_2plus: 0.25    # >=2 visible-output signals
+    visible_work_1: 0.10
+    ai_tool_in_practice: 0.20   # claude/codex/cursor/prompt etc.
+    ops_signal: 0.10            # genuine product-ops signals (tier A/B only)
+    city_primary: 0.20
+    city_secondary: 0.10
+    city_other: -0.40
+    salary_high: 0.10
+    salary_low: -0.20
+  salary_high_floor_k: 15       # >= this monthly floor (K) earns salary_high
+  salary_low_floor_k: 10        # < this earns salary_low
+  # Confidence gates (hard caps applied last).
+  no_jd_evidence_cap: 4.2       # list-card only, no JD body read yet
+  low_confidence_cap: 3.4       # conflicting/insufficient classification signals
+
+# -----------------------------------------------------------------------------
+# Hard filters: deterministic auto-reject before a role reaches your review.
+# -----------------------------------------------------------------------------
+hard_filters:
+  salary_floor_min_k: 8         # reject roles whose salary floor < this (K/month)
+  experience_soft_max_years: 2  # 2y = stretch (capped, not blocked)
+  experience_hard_max_years: 3  # >= this required years = blocked unless junior-track
+  reject_internship_parttime: true
+  reject_higher_ed_and_gov: true   # 高校/国企/央企/事业单位
+  reject_early_stage: true         # 天使/种子/Pre-A/未融资 with no revenue engine
+  reject_company_opacity: true     # 公司名缺失/含"某"
+  reject_major_mismatch: true      # JD demands CS/AI/理工科 major exclusively
+
+# -----------------------------------------------------------------------------
+# Company quality red lines (checked at discovery via browser/cdp_company.mjs).
+# -----------------------------------------------------------------------------
+company_quality:
+  reject_founded_this_year: true
+  reject_founded_within_years: 2
+  reject_micro_early: true         # 0-20人 + 未融资/天使 = no revenue engine
+  work_schedule_red_terms: [单休, 大小周, 996, 997, 做六休一, 六天工作, 非工作时间, 随时待命, 随叫随到]
+  call_center_terms: [呼叫中心, 电销, 客服中心, 电话营销, 话务, 外呼]
+  outsource_terms: [外包, 驻场, 人力外包, 劳务派遣, 人事代理, 人力派遣]
+  # Known outsourcing/staffing bodies (full-name fragments to avoid false hits).
+  outsource_companies: []
+
+# -----------------------------------------------------------------------------
+# Lexicon: the keyword SAFETY NET. These are job-market taxonomy, not your story.
+# Tune per market; the LLM-judge layer makes the real call from the JD body.
+# -----------------------------------------------------------------------------
+lexicon:
+  ai: [ai, aigc, agent, 大模型, llm, claude, codex, gemini, cursor, 智能体, ai coding, 提示词, prompt]
+  product_title: [产品经理, 产品助理, 产品运营, 产品专员, ai pm, 策略产品, 产品策划, pm]
+  product_ops_signal: [badcase, bad case, 评测, 测试集, 训练集, 用户反馈, 需求分析,
+                       产品迭代, 产品策略, 数据策略, 体验优化, 效果运营, 策略优化,
+                       ab测试, 产品设计, 用户研究, 质量评估, 使用反馈, 改进建议, 痛点, 赋能, 效果优化, 运营策略, 解决率]
+  tool_eval_ownership: [pe工作流, 工作流搭建, 提示词工程, prompt工程, prompt 工程, badcase, bad case,
+                        质量评估, 内容质量评估, 输出内容质量, 评估体系, 测试集, 训练集,
+                        工具产品, 工具产品化, 产品化落地, 模型迭代, skill设计, 创作工具, 效果评估, 产品问题]
+  content_production: [视频制作, 视频剪辑, 剪辑, 拍摄, 脚本, 素材制作, 选题, 内容发布, 矩阵号,
+                       起号, 账号运营, 社媒运营, 内容创作, 创作者, 编导, 短剧, 漫剧, 文案撰写,
+                       出镜, 内容生产, 发布, 种草, 图文创作, 小说, 漫画]
+  content_exec: [内容运营, aigc内容, aigc 内容, 内容增长, 内容创作, 创作者, 短剧, 漫剧, 视频制作,
+                 视频剪辑, 视频内容, 内容编导, 新媒体运营, 新媒体内容, 自媒体, 矩阵号, 起号, 选题,
+                 剪辑, 社媒运营, 内容营销, 内容生产, 编剧, 漫画, 种草, 图文创作, 短视频运营]
+  community_ops: [社群运营, 社区运营, 社群, 用户活跃, 拉新, 群运营, 社区氛围, 私域运营]
+  edu_lang: [语言学习, 教育产品, 学习产品, 课程产品, ai tutor, 教育科技, 学习工具, 教培, 语言习得]
+  growth: [用户增长, 增长, user growth, user acquisition, growth]
+  growth_execution: [投放, 买量, 出价, 调价, 信息流, 效果广告, 效果投放, 竞价, 媒介, 广告优化,
+                     广告投放, 投手, 素材制作, 广告素材, roas, 巨量, 千川, 应用商店投放, aso, ua投放]
+  growth_strategy: [增长策略, 增长实验, 增长黑客, 增长产品, 用户生命周期, 增长闭环, 策略制定,
+                    增长体系, 用户运营策略, ab测试, a/b 测试, growth strategy]
+  growth_gtm: [商业化, gtm, 增长策略, growth, 商业探索, commercial, 商业拓展探索, biz dev]
+  strong_target: [ai, aigc, agent, 大模型, claude, codex, cursor, gemini, ai coding, 产品运营,
+                  用户增长, 增长, 语言学习, 教育产品, ai tutor, 用户研究, 用户反馈]
+  secondary_target: [产品经理, 智能, 数据, 平台, 教育, 用户研究, 需求分析, 用户体验, 产品助理, 策略]
+  internship: [实习, 实习生, 兼职, 短期, 3个月, 4个月, 5个月, 6个月, 4天/周, 5天/周, 天/周, 可转正]
+  junior_friendly: [应届, 管培, 定向培养, 产品助理, 助理产品, 初级, 校招, 1年以内, 经验不限]
+  traditional_pm_strict: [figma, axure, 墨刀, 线框图, 交互稿, 视觉稿, sketch, 高保真]
+  visible_work: [用户反馈, 用户体验, 创作者, 活动, 留存, 转化, 复盘, 原型, 需求分析, eval, 评测, 数据策略]
+  ai_tool_practice: [claude, codex, cursor, gemini, 工作流, agent, prompt, 提示词]
+  major_mismatch: [计算机相关专业, 计算机专业, 软件工程, 人工智能相关专业, ai相关专业, 理工科,
+                   数学相关专业, 统计学相关专业, 工业设计]
+  hidden_jd: [登录查看完整内容, 查看完整内容]
+  weak_role: [销售, 电销, 电话销售, 商务拓展, bd, 招商, 渠道, 客服, 班主任, 课程顾问, 留学顾问,
+              老师, 教师, 行政, 运营助理, 专家招募, 跟单, 外贸销售]
+  workload_risk: [抗压, 狼性, 高压, 结果导向, 业绩指标, 业绩目标, 销售目标, kpi, quota, revenue,
+                  996, 大小周, 随时响应, 24小时]
+  backoffice: [中台, b端, b 端, 后台, 办公协同, 智能座舱, 金融产品, 数据产品, erp, crm, saas]
+  low_asset: [资料整理, 复制粘贴, 排期, 工单, 录入, 纯执行, 维护]
+  exception: [ai, aigc, agent, 大模型, 内容, 用户, 增长, 教育, 语言, 社区, 体验]
+  approval_surface: [ai, aigc, agent, 大模型, 产品运营, 用户增长, 增长运营, 用户反馈, 用户体验,
+                     教育, 语言学习, ai coding, 自动化工作流]
+  higher_ed: [大学, 学院, 高校, 研究院, 研究所, 教委]
+  gov_soe: [央企, 国企, 国资, 事业单位, 政府, 部委, 管委会]
+  early_stage: [天使轮, 种子轮, 种子期, pre-a, pre a, prea, 未融资, 初创团队, early stage]
+  established: [已上市, 上市公司, 不需要融资, c轮, d轮, e轮, 战略融资, 已盈利, 持续盈利]
+
+# -----------------------------------------------------------------------------
+# Greetings: first-touch openers. Human, concise, proof-led, no dashes, no
+# parroting the JD, no questions. Picked by archetype/title; {role} is filled in.
+# Edit `proof` and the templates to tell YOUR story.
+# -----------------------------------------------------------------------------
+greetings:
+  intro: "你好，我是 26 届市场营销硕士"
+  templates:
+    - when_archetype_contains: [教育, 语言]
+      when_title_contains: [教育, 语言, 学习, tutor, 课程]
+      text: "{intro}，方向是教育/语言学习产品。我自己做过学习类内容和一个语言学习小工具，对学习路径设计和 AI 辅助学习有方法论。「{role}」在我深耕的方向，挺想加入。"
+    - when_title_contains: [电商, 出海, 跨境, 海外]
+      text: "{intro}。我有跨境内容协作和海外增长的经历，平时也用 Claude、Codex 做 AI 小工具。「{role}」结合 AI 和增长，正好用得上我的复合背景，挺想加入。"
+    - when_archetype_contains: [产品运营]
+      when_title_contains: [产品运营]
+      text: "{intro}，方向 AI 产品运营。我擅长从真实用户反馈和数据里找问题、推动迭代，也用 Claude、Codex 做过能上线的 AI 工具原型。「{role}」挺契合，想争取一下。"
+    - default: true
+      text: "{intro}，方向 AI 产品/产品运营。我做过 0-1 的内容增长和用户洞察，也用 Claude Code、Codex 做过能上线的 AI 工具原型，擅长从用户出发快速做产品验证。「{role}」挺合我的，想争取一下。"

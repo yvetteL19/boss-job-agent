@@ -1,0 +1,32 @@
+# ---- User-owned private data (NEVER commit) -------------------------------
+# Your real profile, ledger, scraped JDs, greetings, chat/progress snapshots.
+config/profile.yaml
+data/*
+!data/.gitkeep
+
+# Generated operating views (regenerated from your private ledger)
+Decision Batch.md
+Send Queue.md
+Dashboard.md
+Approval Queue.md
+Apply Packet.md
+Focus Queue.md
+reports/
+exports/
+
+# Any auth tokens / cookies that may be exported locally
+*auth_token*.json
+*cookies*.json
+*.stoken
+
+# ---- Runtime / tooling ----------------------------------------------------
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+.DS_Store
+*.bak
+*.bak-*
+.idea/
+.vscode/

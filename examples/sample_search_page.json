@@ -1,0 +1,22 @@
+{
+  "keyword": "demo",
+  "_comment": "Synthetic search-page snapshot (no real jobs). Mimics browser/cdp_search.mjs output so you can run the engine offline. Copy to data/current_page.json, then: python3 -m agent.ingest && python3 -m agent.render_dashboard",
+  "jobs": [
+    { "href": "https://www.zhipin.com/job_detail/demo000001.html",
+      "text": "AI产品运营 18-30K 经验不限 本科 用户反馈 数据策略 效果运营 启明智能 上海" },
+    { "href": "https://www.zhipin.com/job_detail/demo000002.html",
+      "text": "用户增长产品经理 20-35K 1-3年 本科 增长策略 留存 转化 AB测试 远见数据 杭州" },
+    { "href": "https://www.zhipin.com/job_detail/demo000003.html",
+      "text": "AI产品助理 12-18K 应届 本科 原型 用户研究 需求分析 智学未来 上海" },
+    { "href": "https://www.zhipin.com/job_detail/demo000004.html",
+      "text": "AIGC内容运营 8-12K 经验不限 大专 短视频运营 剪辑 矩阵号 选题 潮流文化 上海" },
+    { "href": "https://www.zhipin.com/job_detail/demo000005.html",
+      "text": "高级产品经理 25-45K 5-10年 本科 PRD Axure 需求文档 竞品分析 稳健科技 北京" },
+    { "href": "https://www.zhipin.com/job_detail/demo000006.html",
+      "text": "课程顾问 6-10K 经验不限 大专 销售 业绩指标 电话销售 知识星辰 上海" },
+    { "href": "https://www.zhipin.com/job_detail/demo000007.html",
+      "text": "海外用户增长 15-25K 经验不限 本科 投放 买量 信息流 ROAS 素材制作 增长引擎 杭州" },
+    { "href": "https://www.zhipin.com/job_detail/demo000008.html",
+      "text": "AI教育产品经理 18-28K 1-3年 硕士 语言学习 学习路径 AI tutor 课程产品 灵犀教育 上海" }
+  ]
+}
