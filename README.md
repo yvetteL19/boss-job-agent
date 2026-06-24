@@ -8,6 +8,17 @@
 > It automates discovery, JD reading, archetype-band scoring, greeting drafts and
 > funnel tracking. It **never** auto-sends or auto-applies. You decide.
 
+### 👉 新手从这里开始：[ONBOARDING.md](ONBOARDING.md)（5 分钟，3 步上手）
+
+下面是完整说明；只想跑起来的话看上面那篇就够。
+
+**依赖与边界（先说清楚）**
+- **不需要 Obsidian**：原型是在 Obsidian vault 里搭的，但本仓库已脱钩——数据层是纯
+  `CSV/JSON`，生成的 `Dashboard.md` 等是普通 Markdown，任何编辑器可看。
+- **不调用任何 MCP / LLM API**：和 BOSS 的交互全走 `browser/` 的 Node CDP 脚本；「LLM 读 JD
+  判断」这步由**你当前会话的 LLM**（如 Claude Code）完成，代码不内置 key、无费用。
+- 只需 **Python 3.10+** 和 **Node 18+**。
+
 ---
 
 ## 为什么是这样设计的（先看这个）
@@ -91,9 +102,9 @@ cp config/profile.example.yaml config/profile.yaml
 
 ```bash
 cp examples/sample_search_page.json data/current_page.json
-python3 -m agent.ingest               # 8 个合成岗位入台账并打分
-python3 -m agent.render_dashboard     # 生成 Dashboard.md + Approval Queue.md
-python3 -m agent.healthcheck          # 体检
+./jobagent ingest        # 8 个合成岗位入台账并打分
+./jobagent dashboard     # 生成 Dashboard.md + Approval Queue.md
+./jobagent doctor        # 体检
 ```
 
 打开 `Approval Queue.md` 看打分与分档是否符合预期，调 `config/profile.yaml` 再重跑。
@@ -107,33 +118,36 @@ npx @puppeteer/browsers install chrome@stable
 CHROME_BIN="/path/to/chrome" bash browser/launch_chrome.sh
 
 # 一条命令跑完所有机器活
-python3 -m agent.discover --keywords 用户增长,AI产品运营 --cities 上海,杭州 --top 12
+./jobagent discover --keywords 用户增长,AI产品运营 --cities 上海,杭州 --top 12
 ```
 
-然后：LLM 读 JD 判断（写 `data/llm_evals.json` → `python3 -m agent.llm_eval`）→
-`python3 -m agent.render_decision_batch` 看卡 → `python3 -m agent.decide --approve 1,3`
-→ `python3 -m agent.greetings` 起草 → `python3 -m agent.render_send_queue` →
-`node browser/cdp_open.mjs` 开标签 → **你手动发送**。
+然后：LLM 读 JD 判断（写 `data/llm_evals.json` → `./jobagent eval`）→
+`./jobagent cards` 看卡 → `./jobagent decide --approve 1,3` → `./jobagent greet` 起草 →
+`./jobagent send` → `./jobagent open` 开标签 → **你手动发送**。
 
 完整 SOP 见 [docs/WORKFLOW.md](docs/WORKFLOW.md)。
 
 ---
 
-## 命令速查
+## 命令速查（统一 CLI）
+
+不带参数运行 `./jobagent` 会列出所有命令；每个命令支持 `-h`。
+（也可以等价地用 `python3 -m agent <命令>`。）
 
 | 命令 | 作用 |
 |---|---|
-| `python3 -m agent.discover --keywords ... --cities ... --top 12` | 一次跑完发现→硬门，产出幸存者 packet |
-| `python3 -m agent.discover --from-cache --top 12` | 跳过网络，仅用已抓数据重跑硬门 |
-| `python3 -m agent.ingest` | 把 `data/current_page.json` 的列表卡入台账 |
-| `python3 -m agent.llm_eval` | 把 `data/llm_evals.json` 的 LLM 判断写回台账 |
-| `python3 -m agent.render_decision_batch` | 生成结论先行决策卡 `Decision Batch.md` |
-| `python3 -m agent.decide --approve 1,3 --skip 2` | 按编号审批 |
-| `python3 -m agent.greetings --status approved` | 生成招呼语草稿到 `data/greetings.json` |
-| `python3 -m agent.render_send_queue` | 生成发送清单 + 开页 URL 列表 |
-| `python3 -m agent.render_dashboard` | 生成 `Dashboard.md` + `Approval Queue.md` |
-| `python3 -m agent.weekly_review` | 漏斗 + 转化周报 |
-| `python3 -m agent.healthcheck` | 跑批前体检 |
+| `./jobagent discover --keywords ... --cities ... --top 12` | 一次跑完发现→硬门，产出幸存者 packet |
+| `./jobagent discover --from-cache --top 12` | 跳过网络，仅用已抓数据重跑硬门 |
+| `./jobagent ingest` | 把 `data/current_page.json` 的列表卡入台账 |
+| `./jobagent eval` | 把 `data/llm_evals.json` 的 LLM 判断写回台账 |
+| `./jobagent cards` | 生成结论先行决策卡 `Decision Batch.md` |
+| `./jobagent decide --approve 1,3 --skip 2` | 按编号审批 |
+| `./jobagent greet` | 生成招呼语草稿到 `data/greetings.json` |
+| `./jobagent send` | 生成发送清单 + 开页 URL 列表 |
+| `./jobagent open` | 在隔离浏览器把 approved 岗位开成标签（仍手动发送） |
+| `./jobagent dashboard` | 生成 `Dashboard.md` + `Approval Queue.md` |
+| `./jobagent review` | 漏斗 + 转化周报 |
+| `./jobagent doctor` | 跑批前体检 |
 
 ---
 

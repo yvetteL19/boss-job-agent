@@ -3,6 +3,9 @@
 The operating model is **one machine pass + one human review**. The machine
 front-loads everything deterministic; you engage once on real candidates.
 
+> Commands below are written as `python3 -m agent.<module>`. The short form
+> `./jobagent <command>` is equivalent (run `./jobagent` to list commands).
+
 ## Roles
 
 - **You**: give direction (keywords/cities); approve/skip; send greetings

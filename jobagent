@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Thin launcher so you can run `./jobagent <command>` from anywhere.
+# Resolves the repo dir (where this script lives) and runs the agent CLI there,
+# so module imports and relative paths always work.
+set -euo pipefail
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Make the `agent` package importable without changing your working directory.
+exec env PYTHONPATH="$HERE${PYTHONPATH:+:$PYTHONPATH}" python3 -m agent "$@"

@@ -72,7 +72,7 @@ def render_dashboard(rows) -> str:
 
     lines += ["## 下一步", ""]
     if q:
-        lines.append(f"- 打开 [[Approval Queue]]，回 `approve 1,3` / `skip 2`（共 {len(q)} 个候选）。")
+        lines.append(f"- 打开 `Approval Queue.md`，回 `approve 1,3` / `skip 2`（共 {len(q)} 个候选）。")
     else:
         lines.append("- 审批队列为空：跑 `python3 -m agent.discover --keywords ... --top 12`。")
     if stale:
