@@ -97,8 +97,9 @@ Gates 1–2 are deterministic and run by the machine; gate 3 is the human's job.
 `agent/discover.py` front-loads *all* machine work into a single command:
 search → ingest → rule pre-filter → read JD → company health → deterministic
 gate → emit `_batch_packet.json` of survivors. The human engages exactly once,
-on real candidates only. This directly fixes the "approve→sent leak" where
-roles looked ready but died at send-time on company/work-condition red flags.
+on real candidates only. This eliminates a common failure mode where a role
+looks ready but dies at send-time on a company or work-condition red flag that
+should have been caught earlier.
 
 ## 6. Inverted-pyramid decision cards
 

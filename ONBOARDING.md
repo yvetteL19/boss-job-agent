@@ -44,6 +44,10 @@ cp examples/sample_search_page.json data/current_page.json
 
 ## 第 3 步：接真实 BOSS
 
+> ⚠️ 这一步的命令会向 BOSS 发起真实访问。第一次先用较小的 `--top`（比如 6）小批量试跑，
+> 确认节奏正常再放大；遇到验证码、风控提示或登录异常**立即停下**，等冷却。详见
+> [docs/SAFETY.md](docs/SAFETY.md)。
+
 ```bash
 # 1) 装一次隔离浏览器（和你日常 Chrome 完全分开，防止账号风控）
 npx @puppeteer/browsers install chrome@stable

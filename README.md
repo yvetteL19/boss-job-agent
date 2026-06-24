@@ -13,8 +13,8 @@
 下面是完整说明；只想跑起来的话看上面那篇就够。
 
 **依赖与边界（先说清楚）**
-- **不需要 Obsidian**：原型是在 Obsidian vault 里搭的，但本仓库已脱钩——数据层是纯
-  `CSV/JSON`，生成的 `Dashboard.md` 等是普通 Markdown，任何编辑器可看。
+- **不需要 Obsidian**：数据层是纯 `CSV/JSON`，生成的 `Dashboard.md` 等是普通 Markdown，
+  任何编辑器或笔记软件都能打开（包括 Obsidian，但并不依赖它）。
 - **不调用任何 MCP / LLM API**：和 BOSS 的交互全走 `browser/` 的 Node CDP 脚本；「LLM 读 JD
   判断」这步由**你当前会话的 LLM**（如 Claude Code）完成，代码不内置 key、无费用。
 - 只需 **Python 3.10+** 和 **Node 18+**。
@@ -26,13 +26,13 @@
 市面上的「求职机器人」大多在做一件危险的事：**自动批量打招呼/投递**。在 BOSS 直聘上这会
 触发账号风控（封号），而且把你最该亲自把关的一步（要不要联系这家公司）交给了机器。
 
-这个项目的立场相反，来自一次真实求职的血泪教训，固化成三条铁律：
+这个项目反其道而行，把求职里最该你亲自把关的判断权留在你手里，固化成三条铁律：
 
 1. **发送永远手动。** AI 只做不改变平台状态的活：发现、读 JD、打分、起草、追踪。
 2. **打分不是关键词加总，而是「先归类、再按档给分」**——先判断这个岗位「是什么」
    （archetype → 档位），再在档内用证据微调，关键词只当硬性安全网；真正的匹配判断交给
    读完 JD 正文的 LLM。
-3. **机器活一次跑完，你只 engage 一次。** 一条命令把搜索→读 JD→公司体检→硬门全跑完，
+3. **机器活一次跑完，你只介入一次。** 一条命令把搜索→读 JD→公司体检→硬门全跑完，
    只把「需要人判断」的幸存者交给你，做结论先行的 15 秒决策。
 
 详见 [ARCHITECTURE.md](ARCHITECTURE.md) 和 [docs/SAFETY.md](docs/SAFETY.md)。
@@ -110,6 +110,9 @@ cp examples/sample_search_page.json data/current_page.json
 打开 `Approval Queue.md` 看打分与分档是否符合预期，调 `config/profile.yaml` 再重跑。
 
 ### 3. 接真实 BOSS（隔离浏览器）
+
+> ⚠️ 这步会向 BOSS 发起真实访问。首次先用较小的 `--top`（如 6）小批量试跑，遇到验证码或
+> 风控提示立即停（见 [docs/SAFETY.md](docs/SAFETY.md)）。
 
 ```bash
 # 一次性安装 Chrome for Testing
